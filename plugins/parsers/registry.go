@@ -4,11 +4,10 @@ import (
 	"fmt"
 
 	"github.com/influxdata/telegraf"
-
 	"github.com/influxdata/telegraf/plugins/parsers/graphite"
 	"github.com/influxdata/telegraf/plugins/parsers/influx"
 	"github.com/influxdata/telegraf/plugins/parsers/json"
-	"github.com/influxdata/telegraf/plugins/parsers/nagios"
+	"github.com/influxdata/telegraf/plugins/parsers/jim"
 	"github.com/influxdata/telegraf/plugins/parsers/value"
 )
 
@@ -68,13 +67,14 @@ func NewParser(config *Config) (Parser, error) {
 	case "json":
 		parser, err = NewJSONParser(config.MetricName,
 			config.TagKeys, config.DefaultTags)
+	case "json":
+		parser, err = NewJimParser(config.MetricName,
+			config.TagKeys, config.DefaultTags)
 	case "value":
 		parser, err = NewValueParser(config.MetricName,
 			config.DataType, config.DefaultTags)
 	case "influx":
 		parser, err = NewInfluxParser()
-	case "nagios":
-		parser, err = NewNagiosParser()
 	case "graphite":
 		parser, err = NewGraphiteParser(config.Separator,
 			config.Templates, config.DefaultTags)
@@ -97,9 +97,19 @@ func NewJSONParser(
 	return parser, nil
 }
 
-func NewNagiosParser() (Parser, error) {
-	return &nagios.NagiosParser{}, nil
+func NewJimParser(
+	metricName string,
+	tagKeys []string,
+	defaultTags map[string]string,
+) (Parser, error) {
+	parser := &jim.JimParser{
+		MetricName:  metricName,
+		TagKeys:     tagKeys,
+		DefaultTags: defaultTags,
+	}
+	return parser, nil
 }
+
 
 func NewInfluxParser() (Parser, error) {
 	return &influx.InfluxParser{}, nil

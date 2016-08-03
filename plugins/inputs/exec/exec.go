@@ -17,7 +17,6 @@ import (
 	"github.com/influxdata/telegraf/internal/errchan"
 	"github.com/influxdata/telegraf/plugins/inputs"
 	"github.com/influxdata/telegraf/plugins/parsers"
-	"github.com/influxdata/telegraf/plugins/parsers/nagios"
 )
 
 const sampleConfig = `
@@ -102,15 +101,15 @@ func (c CommandRunner) Run(
 
 	if err := internal.RunTimeout(cmd, e.Timeout.Duration); err != nil {
 		switch e.parser.(type) {
-		case *nagios.NagiosParser:
-			AddNagiosState(err, acc)
+		//case *nagios.NagiosParser:
+		//	AddNagiosState(err, acc)
 		default:
 			return nil, fmt.Errorf("exec: %s for command '%s'", err, command)
 		}
 	} else {
 		switch e.parser.(type) {
-		case *nagios.NagiosParser:
-			AddNagiosState(nil, acc)
+		//case *nagios.NagiosParser:
+		//	AddNagiosState(nil, acc)
 		}
 	}
 
