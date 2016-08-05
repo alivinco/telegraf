@@ -67,7 +67,7 @@ func NewParser(config *Config) (Parser, error) {
 	case "json":
 		parser, err = NewJSONParser(config.MetricName,
 			config.TagKeys, config.DefaultTags)
-	case "json":
+	case "jim":
 		parser, err = NewJimParser(config.MetricName,
 			config.TagKeys, config.DefaultTags)
 	case "value":

@@ -9,6 +9,12 @@ import (
 	"github.com/influxdata/telegraf"
 )
 
+var MsgTypeToStringMap = map[iotm.IotMsgType]string{
+		iotm.MsgTypeCmd : "cmd",
+		iotm.MsgTypeEvt : "evt",
+		iotm.MsgTypeGet : "get",
+	}
+
 type JimParser struct {
 	MetricName  string
 	TagKeys     []string
@@ -17,39 +23,28 @@ type JimParser struct {
 func (p *JimParser) Parse(buf []byte) ([]telegraf.Metric, error) {
 	config := map[string]string{"override_payload_type":"jim0"}
 	iotMsg , err := iotm.ConvertBytesToIotMsg("",buf,config)
-
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(iotMsg.String())
 	metrics := make([]telegraf.Metric, 0)
-
-	//var jsonOut map[string]interface{}
-	//err := json.Unmarshal(buf, &jsonOut)
-	//if err != nil {
-	//	err = fmt.Errorf("unable to parse out as JSON, %s", err)
-	//	return nil, err
-	//}
-
 	tags := make(map[string]string)
-	tags["type"] = iotMsg.Type
+	tags["type"] = MsgTypeToStringMap[iotMsg.Type]
 	tags["cls"] = iotMsg.Class
 	tags["subcls"] = iotMsg.SubClass
-	//for k, v := range p.DefaultTags {
-	//	tags[k] = v
-	//}
-	//
-	//for _, tag := range p.TagKeys {
-	//	switch v := jsonOut[tag].(type) {
-	//	case string:
-	//		tags[tag] = v
-	//	}
-	//	delete(jsonOut, tag)
-	//}
-	//
-	//f := JSONFlattener{}
-	//err = f.FlattenJSON("", jsonOut)
-	//if err != nil {
-	//	return nil, err
-	//}
 	f := make(map[string]interface{})
-	f["def_num"] =  iotMsg.GetDefaultInt()
+	var def interface{}
+	def = iotMsg.GetDefault()
+	switch def := def.(type){
+	default:
+		f["def_str"] = "none"
+	case bool :
+		f["def_bool"] = def
+	case int :
+		f["def_num"] = def
+	case string:
+		f["def_str"] = def
+	}
 	metric, err := telegraf.NewMetric(p.MetricName, tags, f, time.Now().UTC())
 
 	if err != nil {
@@ -59,7 +54,7 @@ func (p *JimParser) Parse(buf []byte) ([]telegraf.Metric, error) {
 }
 
 func (p *JimParser) ParseLine(line string) (telegraf.Metric, error) {
-	metrics, err := p.Parse([]byte(line + "\n"),"")
+	metrics, err := p.Parse([]byte(line + "\n"))
 
 	if err != nil {
 		return nil, err
@@ -116,3 +111,4 @@ func (f *JSONFlattener) FlattenJSON(
 	}
 	return nil
 }
+

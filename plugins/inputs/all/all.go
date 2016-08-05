@@ -14,6 +14,7 @@ import (
 	_ "github.com/influxdata/telegraf/plugins/inputs/logparser"
 	_ "github.com/influxdata/telegraf/plugins/inputs/mongodb"
 	_ "github.com/influxdata/telegraf/plugins/inputs/mqtt_consumer"
+	_ "github.com/influxdata/telegraf/plugins/inputs/mqtt_iotm_consumer"
 	_ "github.com/influxdata/telegraf/plugins/inputs/nats_consumer"
 	_ "github.com/influxdata/telegraf/plugins/inputs/net_response"
 	_ "github.com/influxdata/telegraf/plugins/inputs/nginx"
